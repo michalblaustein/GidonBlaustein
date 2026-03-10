@@ -247,13 +247,13 @@ const App: React.FC = () => {
       {/* Book Section */}
       <section id="book" className="py-24 bg-slate-900 text-white overflow-hidden">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="order-2 lg:order-1 relative">
               <motion.div 
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8 }}
-                className="relative w-full max-w-sm mx-auto shadow-2xl rounded-lg overflow-hidden"
+                className="relative w-full max-w-md lg:max-w-lg mx-auto lg:ml-auto lg:mr-0 shadow-2xl rounded-lg overflow-hidden"
               >
                 <img 
                   src="https://lh3.googleusercontent.com/d/14_zj8CurGyKYRM3cao2_hFImAHFHn5s-" 
