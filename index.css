@@ -5,14 +5,14 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Playfair Display", serif;
   
-  --color-primary: #5A5A40; /* Olive/Warm Stone */
-  --color-accent: #C5A059; /* Gold */
-  --color-paper: #F9F8F4;
+  --color-primary: #1E293B; /* Deep Navy/Slate */
+  --color-accent: #3B82F6; /* Bright Blue */
+  --color-paper: #F1F5F9; /* Light Slate */
 }
 
 @layer base {
   body {
-    @apply bg-paper text-stone-800 font-sans;
+    @apply bg-paper text-slate-900 font-sans;
   }
 }
 
