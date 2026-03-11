@@ -26,6 +26,7 @@ async function startServer() {
 
   // API Routes
   app.post("/api/contact", async (req, res) => {
+    console.log("Contact form submission received:", req.body);
     const { name, email, message, agreedToPrivacy } = req.body;
 
     if (!agreedToPrivacy) {
@@ -59,7 +60,8 @@ async function startServer() {
   });
 
   app.post("/api/subscribe", async (req, res) => {
-    const { name, email, agreedToPrivacy } = req.body;
+    console.log("Subscription request received:", req.body);
+    const { name, email, whatsapp, agreedToPrivacy } = req.body;
 
     if (!agreedToPrivacy) {
       return res.status(400).json({ error: "You must agree to the privacy policy." });
@@ -69,11 +71,12 @@ async function startServer() {
       from: process.env.SMTP_USER || "noreply@gidonblaustein.co.il",
       to: "hello@gidonblaustein.co.il",
       subject: `New Guide Subscription: ${name}`,
-      text: `Name: ${name}\nEmail: ${email}`,
+      text: `Name: ${name}\nEmail: ${email}\nWhatsApp: ${whatsapp}`,
       html: `
         <h3>New Guide Subscription</h3>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
+        <p><strong>WhatsApp:</strong> ${whatsapp}</p>
       `,
     };
 

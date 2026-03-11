@@ -142,14 +142,15 @@ const App: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(signupForm),
       });
+      const data = await res.json();
       if (res.ok) {
         setSignupStatus({ type: 'success', message: 'Thank you! Your request has been received.' });
         setSignupForm({ name: '', email: '', whatsapp: '', agreedToPrivacy: false });
       } else {
-        throw new Error('Failed to subscribe');
+        setSignupStatus({ type: 'error', message: data.error || 'Failed to subscribe' });
       }
     } catch (err) {
-      setSignupStatus({ type: 'error', message: 'Something went wrong. Please try again.' });
+      setSignupStatus({ type: 'error', message: 'Connection error. Please check your internet or try again later.' });
     }
   };
 
@@ -166,14 +167,15 @@ const App: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(contactForm),
       });
+      const data = await res.json();
       if (res.ok) {
         setContactStatus({ type: 'success', message: 'Message sent successfully! I will get back to you soon.' });
         setContactForm({ name: '', email: '', message: '', agreedToPrivacy: false });
       } else {
-        throw new Error('Failed to send message');
+        setContactStatus({ type: 'error', message: data.error || 'Failed to send message' });
       }
     } catch (err) {
-      setContactStatus({ type: 'error', message: 'Something went wrong. Please try again.' });
+      setContactStatus({ type: 'error', message: 'Connection error. Please check your internet or try again later.' });
     }
   };
 
