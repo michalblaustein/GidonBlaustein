@@ -122,6 +122,61 @@ const App: React.FC = () => {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showAccessibility, setShowAccessibility] = useState(false);
 
+  // Form States
+  const [signupForm, setSignupForm] = useState({ name: '', email: '', whatsapp: '', agreedToPrivacy: false });
+  const [signupStatus, setSignupStatus] = useState<{ type: 'idle' | 'loading' | 'success' | 'error', message?: string }>({ type: 'idle' });
+
+  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '', agreedToPrivacy: false });
+  const [contactStatus, setContactStatus] = useState<{ type: 'idle' | 'loading' | 'success' | 'error', message?: string }>({ type: 'idle' });
+
+  const handleSignupSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!signupForm.agreedToPrivacy) {
+      setSignupStatus({ type: 'error', message: 'Please agree to the privacy policy.' });
+      return;
+    }
+    setSignupStatus({ type: 'loading' });
+    try {
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(signupForm),
+      });
+      if (res.ok) {
+        setSignupStatus({ type: 'success', message: 'Thank you! Your request has been received.' });
+        setSignupForm({ name: '', email: '', whatsapp: '', agreedToPrivacy: false });
+      } else {
+        throw new Error('Failed to subscribe');
+      }
+    } catch (err) {
+      setSignupStatus({ type: 'error', message: 'Something went wrong. Please try again.' });
+    }
+  };
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contactForm.agreedToPrivacy) {
+      setContactStatus({ type: 'error', message: 'Please agree to the privacy policy.' });
+      return;
+    }
+    setContactStatus({ type: 'loading' });
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(contactForm),
+      });
+      if (res.ok) {
+        setContactStatus({ type: 'success', message: 'Message sent successfully! I will get back to you soon.' });
+        setContactForm({ name: '', email: '', message: '', agreedToPrivacy: false });
+      } else {
+        throw new Error('Failed to send message');
+      }
+    } catch (err) {
+      setContactStatus({ type: 'error', message: 'Something went wrong. Please try again.' });
+    }
+  };
+
   return (
     <div className="min-h-screen selection:bg-accent selection:text-white">
       <Navbar />
@@ -317,22 +372,82 @@ const App: React.FC = () => {
               </div>
             </div>
             <div className="p-12 md:w-1/2">
-              <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Email Address</label>
-                  <input type="email" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-accent transition-all" placeholder="your@email.com" />
+              {signupStatus.type === 'success' ? (
+                <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
+                  <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
+                    <Zap size={32} />
+                  </div>
+                  <h3 className="text-2xl font-serif text-slate-900">Success!</h3>
+                  <p className="text-slate-600">{signupStatus.message}</p>
+                  <button 
+                    onClick={() => setSignupStatus({ type: 'idle' })}
+                    className="text-accent font-bold hover:underline"
+                  >
+                    Send another request
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">WhatsApp Number</label>
-                  <input type="tel" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-accent transition-all" placeholder="+972 ..." />
-                </div>
-                <button className="w-full bg-accent text-white py-4 rounded-xl font-bold hover:bg-opacity-90 transition-all shadow-lg shadow-accent/20">
-                  Send Me the Guide
-                </button>
-                <p className="text-center text-xs text-slate-400">
-                  Or <a href="https://wa.me/972526412390" className="text-accent underline">WhatsApp us directly</a>
-                </p>
-              </form>
+              ) : (
+                <form className="space-y-6" onSubmit={handleSignupSubmit}>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Full Name</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={signupForm.name}
+                      onChange={(e) => setSignupForm({ ...signupForm, name: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-accent transition-all" 
+                      placeholder="Your Name" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Email Address</label>
+                    <input 
+                      type="email" 
+                      required
+                      value={signupForm.email}
+                      onChange={(e) => setSignupForm({ ...signupForm, email: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-accent transition-all" 
+                      placeholder="your@email.com" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">WhatsApp Number</label>
+                    <input 
+                      type="tel" 
+                      required
+                      value={signupForm.whatsapp}
+                      onChange={(e) => setSignupForm({ ...signupForm, whatsapp: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-accent transition-all" 
+                      placeholder="+972 ..." 
+                    />
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <input 
+                      type="checkbox" 
+                      id="signup-privacy"
+                      required
+                      checked={signupForm.agreedToPrivacy}
+                      onChange={(e) => setSignupForm({ ...signupForm, agreedToPrivacy: e.target.checked })}
+                      className="mt-1 accent-accent"
+                    />
+                    <label htmlFor="signup-privacy" className="text-xs text-slate-500 leading-tight">
+                      I agree to the <button type="button" onClick={() => setShowPrivacy(true)} className="text-accent underline">privacy policy</button> and terms of service.
+                    </label>
+                  </div>
+                  {signupStatus.type === 'error' && (
+                    <p className="text-red-500 text-xs font-bold">{signupStatus.message}</p>
+                  )}
+                  <button 
+                    disabled={signupStatus.type === 'loading'}
+                    className="w-full bg-accent text-white py-4 rounded-xl font-bold hover:bg-opacity-90 transition-all shadow-lg shadow-accent/20 disabled:opacity-50"
+                  >
+                    {signupStatus.type === 'loading' ? 'Sending...' : 'Send Me the Guide'}
+                  </button>
+                  <p className="text-center text-xs text-slate-400">
+                    Or <a href="https://wa.me/972526412390" className="text-accent underline">WhatsApp us directly</a>
+                  </p>
+                </form>
+              )}
             </div>
           </div>
         </div>
@@ -371,23 +486,79 @@ const App: React.FC = () => {
             </div>
             
             <div className="p-12 md:w-1/2 bg-slate-800/50 backdrop-blur-sm border-l border-white/5">
-              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Name</label>
-                  <input type="text" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent outline-none transition-all" placeholder="Your Name" />
+              {contactStatus.type === 'success' ? (
+                <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
+                  <div className="w-16 h-16 bg-accent/20 text-accent rounded-full flex items-center justify-center">
+                    <Mail size={32} />
+                  </div>
+                  <h3 className="text-2xl font-serif text-white">Message Received</h3>
+                  <p className="text-slate-400">{contactStatus.message}</p>
+                  <button 
+                    onClick={() => setContactStatus({ type: 'idle' })}
+                    className="text-accent font-bold hover:underline"
+                  >
+                    Send another message
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Email</label>
-                  <input type="email" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent outline-none transition-all" placeholder="your@email.com" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Message</label>
-                  <textarea rows={4} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent outline-none transition-all" placeholder="How can I help you?"></textarea>
-                </div>
-                <button className="w-full bg-accent text-white py-4 rounded-xl font-bold hover:bg-opacity-90 transition-all">
-                  Send Message
-                </button>
-              </form>
+              ) : (
+                <form className="space-y-4" onSubmit={handleContactSubmit}>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Name</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={contactForm.name}
+                      onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent outline-none transition-all" 
+                      placeholder="Your Name" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Email</label>
+                    <input 
+                      type="email" 
+                      required
+                      value={contactForm.email}
+                      onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent outline-none transition-all" 
+                      placeholder="your@email.com" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Message</label>
+                    <textarea 
+                      rows={4} 
+                      required
+                      value={contactForm.message}
+                      onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent outline-none transition-all" 
+                      placeholder="How can I help you?"
+                    ></textarea>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <input 
+                      type="checkbox" 
+                      id="contact-privacy"
+                      required
+                      checked={contactForm.agreedToPrivacy}
+                      onChange={(e) => setContactForm({ ...contactForm, agreedToPrivacy: e.target.checked })}
+                      className="mt-1 accent-accent"
+                    />
+                    <label htmlFor="contact-privacy" className="text-xs text-slate-400 leading-tight">
+                      I agree to the <button type="button" onClick={() => setShowPrivacy(true)} className="text-accent underline">privacy policy</button>.
+                    </label>
+                  </div>
+                  {contactStatus.type === 'error' && (
+                    <p className="text-red-400 text-xs font-bold">{contactStatus.message}</p>
+                  )}
+                  <button 
+                    disabled={contactStatus.type === 'loading'}
+                    className="w-full bg-accent text-white py-4 rounded-xl font-bold hover:bg-opacity-90 transition-all disabled:opacity-50"
+                  >
+                    {contactStatus.type === 'loading' ? 'Sending...' : 'Send Message'}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </div>
